@@ -1,12 +1,12 @@
 # caffe_study
-ubuntu 18.04
-cpu mode:
- compile OK.
- python caffe import OK.
+ubuntu 18.04\
+cpu mode:\
+ compile OK.\
+ python caffe import OK.\
 
-mnist training
-cifar10 training
+mnist training\
+cifar10 training\
 
-gpu mode:
+gpu mode:\
  cuda driver installing......
  
