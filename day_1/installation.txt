@@ -1,0 +1,71 @@
+day 1
+不要使用 ubuntu 21.04
+Ubuntu 18.04
+1.安装caffe
+1.1. 安装依赖包
+sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler 
+sudo apt-get install --no-install-recommends libboost-all-dev
+sudo apt-get install python-dev
+sudo apt-get install libatlas-base-dev
+sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+sudo apt-get install python-opencv
+
+1.2. 下载caffe
+git clone git://github.com/BVLC/caffe.git
+
+1.3. 修改caffe下文件Makefile.config
+cp Makefile.config.example Makefile.config
+
+  1. 去掉CPU_ONLY :=1的注释 
+  2. 注释掉CUDA有关的行： 
+  #CUDA_DIR := /usr/local/cuda 
+  #CUDA_DIR := /usr 
+  #CUDA_ARCH := .... 
+  #TEST_GPUID := 0 
+  3. 去掉WITH_PYTHON_LAYER := 1的注释
+  4. hdf5 support add
+  # Whatever else you find you need goes here.
+  INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/
+  LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib  /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/hdf5/serial
+
+1.4. 修改caffe下文件Makefile   
+  1.opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs     
+  后面加入 opencv_imgcodecs  
+  2. LIBRARIES 关联 修改hdf5_hl hdf5 -> hdf5_serial_hl hdf5_serial
+  注：1.3中的第四项修改和1.4中的第二项修改原因 ：在安装hdf5的使用使用的是 sudo apt-get libhdf5-serial-dev（参考 [这个](https://www.jianshu.com/p/ab539e9a7955))
+
+1.5. 编译
+make all
+Make test
+make runtest
+
+2.pycaffe安装
+2.1. 安装依赖库
+2.1.1 方法一
+
+安装以上依赖库
+cd caffe/python
+for req in $(cat requirements.txt); do pip install $req; done
+注：protobuf 版本不能为3.18.0，手动安装3.17.3 
+    pip uninstall protobuf==3.18.0
+    pip install protobuf==3.17.3
+2.1.2 方法二
+~$sudo apt-get install python-numpy python-scipy python-matplotlib python-sklearn python-skimage python-h5py python-protobuf python-leveldb python-networkx python-nose python-pandas python-gflags Cython ipython
+~$sudo apt-get install protobuf-c-compiler protobuf-compiler
+
+2.2 添加 PYTHONPATH
+sudo gedit /etc/profile
+export PYTHONPATH=$PYTHONPATH:/home/XXX/caffe/python:$PYTHONPATH   # xxx为用户名
+使上述更改生效
+$ source /etc/profile
+
+2.3编译
+cd ~/caffe
+make pycaffe
+
+2.4 测试
+python
+import caffe
+————————————————
+版权声明：本文为CSDN博主「Allen2401」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/sinat_38439143/article/details/97244296
