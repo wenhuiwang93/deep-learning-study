@@ -1,0 +1,11 @@
+Task 1.
+爬虫软件， 爬一些猫狗或者其他感兴趣类的图片，用Emotion-detection的分类模型做training 并且 inference一下。
+Task 2.
+load trained model to embedded device。（e.g. : 树莓派， i.mx6ull）
+Task 3.
+熟悉物体检测框架。
+SSD: Single Shot MultiBox Detector
+https://github.com/weiliu89/caffe/tree/ssd
+yolo.
+Task 4.
+ncnn 模型的熟悉。
