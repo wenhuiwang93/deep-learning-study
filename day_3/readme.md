@@ -149,6 +149,10 @@ End Training with        loss: 0.001    Accuracy : 1.000                val-loss
 
 # Some Notes:
 Tensorflow代码地址：
+
 https://gitee.com/jaegerwang/eeg-learn/tree/master/tf_EEGLearn
+
 Pytorch代码地址：
+
 https://gitee.com/jaegerwang/eeg-learn/tree/master/EEGLearn-Pytorch
+
