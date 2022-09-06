@@ -18,5 +18,6 @@
 ```
 for e in locs_3d:
   locs_2d.append(azim_proj(e))
+```
 三维坐标转二维投影坐标
 ### 
