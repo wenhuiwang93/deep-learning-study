@@ -13,7 +13,7 @@
    - scikit-learn==1.0.2
    - scipy==1.7.3
    - numpy==1.19.2
-## 生成EEG图像
+## 预处理(生成EEG图像)
 ### 坐标转换
 ```
 for e in locs_3d:
@@ -63,3 +63,92 @@ def build_convpool_lstm(input_image, nb_classes, grad_clip=110, image_size=32, n
 
     return prediction
 ```
+## Train
+python train.py
+```
+--------------------------------------------------
+Epoch 55 of 80 took 6.534s
+Train   Epoch [55/80]  train_Loss: 0.7057       train_Acc: 84.22
+Val     Epoch [55/80]  val_Loss: 0.5256 val_Acc: 92.43
+Test    Epoch [55/80]  test_Loss: 1.0254        test_Acc: 52.97
+--------------------------------------------------
+```
+
+# Pytorch下的EEG分类
+## 环境配置
+conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+使用镜像站的场合，请删除“-c pytorch”
+使用conda导入环境：conda env create -f Pytorch_EEG.yml
+## 预处理
+和Tensorflow一致
+## 搭建深度学习网络（LSTM）
+```
+class LSTM(nn.Module):
+    def __init__(self, input_image=torch.zeros(1, 7, 3, 32, 32), kernel=(3, 3), stride=1, padding=1, max_kernel=(2, 2),
+                 n_classes=4, n_units=128):
+        super(LSTM, self).__init__()
+
+        n_window = input_image.shape[1]
+        n_channel = input_image.shape[2]
+
+        self.conv1 = nn.Conv2d(n_channel, 32, kernel, stride=stride, padding=padding)
+        self.conv2 = nn.Conv2d(32, 32, kernel, stride=stride, padding=padding)
+        self.conv3 = nn.Conv2d(32, 32, kernel, stride=stride, padding=padding)
+        self.conv4 = nn.Conv2d(32, 32, kernel, stride=stride, padding=padding)
+        self.pool1 = nn.MaxPool2d(max_kernel)
+        self.conv5 = nn.Conv2d(32, 64, kernel, stride=stride, padding=padding)
+        self.conv6 = nn.Conv2d(64, 64, kernel, stride=stride, padding=padding)
+        self.conv7 = nn.Conv2d(64, 128, kernel, stride=stride, padding=padding)
+
+        # LSTM Layer
+        self.rnn = nn.RNN(4 * 4 * 128, n_units, n_window)
+        self.rnn_out = torch.zeros(2, 7, 128)
+
+        self.pool = nn.MaxPool2d((n_window, 1))
+        self.drop = nn.Dropout(p=0.5)
+        self.fc = nn.Linear(896, n_classes)
+        self.max = nn.LogSoftmax()
+
+    def forward(self, x):
+        if x.get_device() == 0:
+            tmp = torch.zeros(x.shape[0], x.shape[1], 128, 4, 4).cuda()
+        else:
+            tmp = torch.zeros(x.shape[0], x.shape[1], 128, 4, 4).cpu()
+        for i in range(7):
+            img = x[:, i]
+            img = F.relu(self.conv1(img))
+            img = F.relu(self.conv2(img))
+            img = F.relu(self.conv3(img))
+            img = F.relu(self.conv4(img))
+            img = self.pool1(img)
+            img = F.relu(self.conv5(img))
+            img = F.relu(self.conv6(img))
+            img = self.pool1(img)
+            img = F.relu(self.conv7(img))
+            tmp[:, i] = self.pool1(img)
+            del img
+        x = tmp.reshape(x.shape[0], x.shape[1], 4 * 128 * 4)
+        del tmp
+        self.rnn_out, _ = self.rnn(x)
+        x = self.rnn_out.view(x.shape[0], -1)
+        self.drop(x)
+        x = self.fc(x)
+        x = self.max(x)
+        return x
+ ```
+ ## Train
+python Train.py
+```
+ ----------------------------------------------------------------------------------------------------
+
+Begin Training for Patient 1
+End Training with        loss: 0.001    Accuracy : 1.000                val-loss: 0.991 val-Accuracy : 0.949
+
+----------------------------------------------------------------------------------------------------
+```
+
+# Some Notes:
+Tensorflow代码地址：
+https://gitee.com/jaegerwang/eeg-learn/tree/master/tf_EEGLearn
+Pytorch代码地址：
+https://gitee.com/jaegerwang/eeg-learn/tree/master/EEGLearn-Pytorch
