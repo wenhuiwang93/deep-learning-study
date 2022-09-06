@@ -6,10 +6,15 @@
 ## Nvidia GPU
    - Driver Version: 470.141.03
    - CUDA Version: 11.4 
-# tensorflow下的EEG分类
+# Tensorflow下的EEG分类
 ## 依赖环境
    - python == 3.8.10
    - tensorflow==2.5.2
    - scikit-learn==1.0.2
    - scipy==1.7.3
    - numpy==1.19.2
+## 生成EEG图像
+### 坐标转换
+```
+for e in locs_3d:
+  locs_2d.append(azim_proj(e))
