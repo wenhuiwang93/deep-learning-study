@@ -20,4 +20,10 @@ for e in locs_3d:
   locs_2d.append(azim_proj(e))
 ```
 三维坐标转二维投影坐标
-### 
+### 图像插值
+```
+    for i in range(nSamples):
+        for c in range(n_colors):
+            temp_interp[c][i, :, :] = griddata(locs, feat_array_temp[c][i, :], (grid_x, grid_y),    # cubic
+                                    method='cubic', fill_value=np.nan)
+```
